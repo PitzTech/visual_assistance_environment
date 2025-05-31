@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reconhecimento de Sinais de Mão</title>
+  <link rel="stylesheet" href="styles/gestos.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Reconhecimento de Sinais de Mão</h1>
+
+    <div class="video-container">
+      <h3>Carregando...</h3>
+      <video id="inputVideo" width="640" height="480" playsinline></video>
+      <canvas id="outputCanvas" width="640" height="480"></canvas>
+    </div>
+
+    <div id="gestureOutput">Aguardando detecção...</div>
+  </div>
+
+  <div class="gesture-form">
+    <h3>Cadastrar Novo Gesto</h3>
+    <div class="form-group">
+      <label for="objectName">Nome do Objeto:</label>
+      <input type="text" id="objectName" placeholder="Ex: caderno, caneta, livro...">
+    </div>
+    <button class="btn" id="captureGesture">Capturar Sinal</button>
+    <button class="btn btn-secondary" id="registerGesture" disabled>Cadastrar Sinal</button>
+    <div id="statusMessage"></div>
+  </div>
+
+  <div class="registered-gestures">
+    <h3>Gestos Cadastrados</h3>
+    <div id="gesturesList">
+      <p>Nenhum gesto cadastrado ainda.</p>
+    </div>
+    <button class="btn btn-danger" id="clearGestures">Limpar Todos</button>
+  </div>
+
+  <!-- MediaPipe-->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+  <!-- Opcional: TensorFlow.js para funcionalidades avançadas -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"></script>
+
+  <!-- Biblioteca para suavizar detecções (opcional) -->
+  <script src="https://cdn.jsdelivr.net/npm/handtrackjs@latest/dist/handtrack.min.js"></script>
+
+  <script type="module" src="scripts\camera.js"></script>
+  <script type="module" src="scripts\recordGesture.js"></script>
+  <script type="module" src="scripts\websocket.js"></script>
+</body>
+
+</html>
