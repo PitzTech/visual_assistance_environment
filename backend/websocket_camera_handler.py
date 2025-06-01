@@ -21,11 +21,10 @@ class WebSocketCameraHandler:
     with VideoCapture-like interface for frame provision
     """
 
-    def __init__(self, detector_instance=None):
+    def __init__(self):
         # WebSocket server properties
         self.frame_count = 0
         self.clients = set()
-        self.detector = detector_instance
 
         # FPS calculation variables
         self.fps_counter = 0
@@ -44,6 +43,10 @@ class WebSocketCameraHandler:
         self.latest_frame = None
         self.server = None
 
+        # Detection results storage
+        self.latest_processed_frame = None
+        self.latest_detections = []
+
     async def register_client(self, websocket):
         """Register a new client connection"""
         self.clients.add(websocket)
@@ -55,7 +58,7 @@ class WebSocketCameraHandler:
         logger.info(f"Client disconnected. Total clients: {len(self.clients)}")
 
     async def process_frame(self, frame_data):
-        """Process the received frame data with object detection"""
+        """Process the received frame data and return unified message"""
         try:
             # Convert bytes to PIL Image
             image = Image.open(io.BytesIO(frame_data))
@@ -68,7 +71,7 @@ class WebSocketCameraHandler:
                 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
             # Flip frame horizontally for mirror effect
-            frame = cv2.flip(frame, 1)
+            # frame = cv2.flip(frame, 1)
 
             # Update latest frame for frame provider functionality
             self.latest_frame = frame.copy()
@@ -79,12 +82,6 @@ class WebSocketCameraHandler:
             except:
                 pass  # Queue full, skip frame
 
-            detections = []
-
-            # Run object detection if detector is available
-            if self.detector:
-                frame, detections = self.detector.detect_objects(frame)
-
             # Calculate FPS
             self.fps_counter += 1
             if time.time() - self.fps_timer >= 1.0:
@@ -92,35 +89,48 @@ class WebSocketCameraHandler:
                 self.fps_counter = 0
                 self.fps_timer = time.time()
 
-            # Add info panel if detector has this method
-            if self.detector and hasattr(self.detector, 'add_info_panel'):
-                frame = self.detector.add_info_panel(frame, detections, self.fps)
-
-            # Save screenshot if requested
-            if self.save_screenshot:
-                timestamp = time.strftime("%Y%m%d_%H%M%S")
-                filename = f"classroom_detection_{timestamp}.jpg"
-                cv2.imwrite(filename, frame)
-                logger.info(f"Screenshot saved as {filename}")
-                self.save_screenshot = False
-
             self.frame_count += 1
-
-            # Convert processed frame back to base64 for sending to clients
-            _, buffer = cv2.imencode('.jpg', frame)
-            frame_base64 = base64.b64encode(buffer).decode('utf-8')
 
             logger.info(f"Processed frame {self.frame_count}: {image.size}, FPS: {self.fps}")
 
-            # Return processing results
-            return {
+            # Create unified message with all data
+            message = {
+                "type": "processed_frame",
                 "frame_count": self.frame_count,
-                "image_size": image.size,
+                "image_size": list(image.size),
                 "fps": self.fps,
-                "detections": len(detections) if detections else 0,
-                "processed_frame": frame_base64,
                 "status": "processed"
             }
+
+            # Add detection data if available
+            if self.latest_processed_frame is not None and self.latest_detections:
+                # Convert processed frame to base64
+                success, buffer = cv2.imencode('.jpg', self.latest_processed_frame)
+                if success:
+                    frame_base64 = base64.b64encode(buffer).decode('utf-8')
+
+                    # Prepare detection data
+                    detection_data = []
+                    for detection in self.latest_detections:
+                        x1, y1, x2, y2 = detection['bbox']
+                        detection_data.append({
+                            'name': detection['class'],
+                            'confidence': detection['confidence'],
+                            'bbox': {
+                                'x1': int(x1), 'y1': int(y1),
+                                'x2': int(x2), 'y2': int(y2)
+                            }
+                        })
+
+                    message.update({
+                        "frame": frame_base64,
+                        "detections": detection_data,
+                        "detection_count": len(self.latest_detections)
+                    })
+
+                    logger.info(f"Added detection data: {len(detection_data)} detections")
+
+            return message
 
         except Exception as e:
             logger.error(f"Error processing frame: {e}")
@@ -139,7 +149,18 @@ class WebSocketCameraHandler:
                 return_exceptions=True
             )
 
-    async def handle_client(self, websocket, path):
+    def send_processed_frame(self, processed_frame, detections):
+        """Store processed frame and detections for next frame message"""
+        try:
+            self.latest_processed_frame = processed_frame.copy()
+            self.latest_detections = detections.copy()
+            # logger.info(f"Stored {len(detections)} detections for next frame")
+
+        except Exception as e:
+            logger.error(f"Error in send_processed_frame: {e}")
+
+
+    async def handle_client(self, websocket, path=None):
         """Handle individual client connections"""
         await self.register_client(websocket)
 
@@ -199,6 +220,7 @@ class WebSocketCameraHandler:
             self.is_open = True
             logger.info(f"WebSocket server started on ws://{host}:{port}")
             logger.info("Waiting for camera connections...")
+
 
             await self.server.wait_closed()
 

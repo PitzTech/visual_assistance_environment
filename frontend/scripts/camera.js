@@ -2,6 +2,7 @@ import { generateAndPlaySpeech } from './audio.js';
 import { hands } from './recordGesture.js';
 import { captureAndSendFrame } from './websocket.js';
 import { FPSController } from './fpsControllerClass.js';
+import { isStreaming } from './websocket.js';
 
 export let isCameraRunning = false;
 
@@ -16,15 +17,15 @@ function startCamera() {
     onFrame: async () => {
       await hands.send({ image: videoDomElement });
     },
-    width: 320,
-    height: 240
+    width: 1280,
+    height: 720
   });
 
   camera.start();
 
   fpsController.start(() => {
     if (isStreaming) {
-      captureAndSendFrame();
+      captureAndSendFrame(videoDomElement);
     }
   });
 
@@ -36,7 +37,9 @@ function startCamera() {
 const constraints = {
   audio: false,
   video: {
-    facingMode: { ideal: "environment" } // Use "environment" para traseira e "user" para frontal
+    facingMode: { ideal: "environment" }, // Use "environment" para traseira e "user" para frontal
+    width: { ideal: 1280 },
+    height: { ideal: 720 }
   }
 };
 

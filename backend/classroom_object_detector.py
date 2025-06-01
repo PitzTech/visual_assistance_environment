@@ -211,9 +211,9 @@ class ClassroomObjectDetector:
     def run_detection(self, use_websocket=True, camera_id=0):
         """
         Run real-time object detection
-
         Args:
             camera_id: Camera device ID (default: 0)
+            use_websocket: Whether to use WebSocket input or direct camera
         """
         if use_websocket:
             print("Starting WebSocket-based detection...")
@@ -253,8 +253,9 @@ class ClassroomObjectDetector:
                 print("Error: Could not read frame")
                 break
 
-            # Flip frame horizontally for mirror effect
-            frame = cv2.flip(frame, 1)
+            if not use_websocket:
+                # Flip frame horizontally for mirror effect (websocket already flips)
+                frame = cv2.flip(frame, 1)
 
             # Detect objects
             frame, detections = self.detect_objects(frame)
@@ -268,6 +269,10 @@ class ClassroomObjectDetector:
 
             # Add info panel
             frame = self.add_info_panel(frame, detections, fps)
+
+            # Send processed frame to frontend if using websocket
+            if use_websocket:
+                cap.send_processed_frame(frame, detections)
 
             # Display frame
             cv2.imshow('Classroom Object Detection', frame)

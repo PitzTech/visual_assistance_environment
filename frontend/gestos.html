@@ -13,9 +13,18 @@
     <h1>Reconhecimento de Sinais de Mão</h1>
 
     <div class="video-container">
-      <h3>Carregando...</h3>
-      <video id="inputVideo" width="640" height="480" playsinline></video>
-      <canvas id="outputCanvas" width="640" height="480"></canvas>
+      <div class="video-side-by-side">
+        <div class="video-wrapper">
+          <h3>Câmera Original</h3>
+          <video id="inputVideo" width="640" height="480" playsinline></video>
+          <canvas id="outputCanvas" width="640" height="480"></canvas>
+        </div>
+        <div class="video-wrapper">
+          <h3>Detecção de Objetos</h3>
+          <canvas id="detectionCanvas" width="640" height="480"></canvas>
+          <div id="detectionInfo">Aguardando dados de detecção...</div>
+        </div>
+      </div>
     </div>
 
     <div id="gestureOutput">Aguardando detecção...</div>
