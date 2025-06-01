@@ -75,11 +75,11 @@ export const captureAndSendFrame = (videoElement) => {
 }
 
 function displayProcessedFrame(data) {
-  console.log('Received processed frame data:', {
-    frameLength: data.frame ? data.frame.length : 0,
-    detectionCount: data.detection_count,
-    fps: data.fps
-  });
+  // console.log('Received processed frame data:', {
+  //   frameLength: data.frame ? data.frame.length : 0,
+  //   detectionCount: data.detection_count,
+  //   fps: data.fps
+  // });
 
   if (!data.frame) {
     console.error('No frame data received');
@@ -90,7 +90,7 @@ function displayProcessedFrame(data) {
   const img = new Image();
 
   img.onload = () => {
-    console.log('Image loaded successfully, drawing to canvas');
+    // console.log('Image loaded successfully, drawing to canvas');
     // Clear the detection canvas
     detectionCtx.clearRect(0, 0, detectionCanvas.width, detectionCanvas.height);
 
