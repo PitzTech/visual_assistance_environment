@@ -1,7 +1,20 @@
 # SPECIFIC
-*/datasets/*
-runs
-*/combined_dataset/*
+# Dataset directories
+datasets/*
+**/datasets/*
+combined_dataset/*
+**/combined_dataset/*
+
+# Legacy datasets
+v1_legacy/v1/datasets/
+**/v1_legacy/v1/datasets/
+
+# Run outputs
+runs/
+**/runs/
+
+*.png
+*.jpg
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

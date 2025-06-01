@@ -1,0 +1,25 @@
+# Core requirements for YOLO Classroom Object Detection
+ultralytics>=8.0.0
+opencv-python>=4.5.0
+numpy>=1.21.0
+
+# Additional dependencies that may be required
+Pillow>=8.3.0
+matplotlib>=3.3.0
+PyYAML>=5.4.0
+requests>=2.25.0
+tqdm>=4.62.0
+pandas>=1.3.0
+
+# Optional: For better performance on CUDA-enabled systems
+# Uncomment the lines below if you have a CUDA-compatible GPU
+torch>=1.12.0+cu116
+torchvision>=0.13.0+cu116
+
+# torch>=1.12.0
+# torchvision>=0.13.0
+# Comment out the CPU versions above if using CUDA
+
+# For development and debugging (optional)
+# jupyter>=1.0.0
+# ipython>=7.0.0
