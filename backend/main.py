@@ -25,7 +25,7 @@ def main():
             # model_path='yolov8n.pt',  # Fastest (for low-end hardware)
             # model_path='yolov8m.pt',  # Better accuracy
             #model_path='trained_model/best.pt',  # Custom fine-tuned model
-            confidence_threshold=0.8  # Lowered for better detection of classroom items
+            confidence_threshold=0.7  # Lowered for better detection of classroom items
         )
 
         # Start detection
