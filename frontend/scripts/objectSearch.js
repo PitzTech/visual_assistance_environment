@@ -11,6 +11,20 @@ const gesturesList = document.getElementById('gesturesList');
 
 // Text-to-speech function in Portuguese
 
+// Check if hand is touching/overlapping with object
+function isHandTouchingObject(handX, handY, objectBbox) {
+  // Define hand area (approximate hand size)
+  const handRadius = 30; // pixels
+
+  // Check if hand center is within object bounding box
+  const isInsideObject = handX >= objectBbox.x1 - handRadius &&
+    handX <= objectBbox.x2 + handRadius &&
+    handY >= objectBbox.y1 - handRadius &&
+    handY <= objectBbox.y2 + handRadius;
+
+  return isInsideObject;
+}
+
 // Calculate position relative to image
 function getImageRelativePosition(handX, handY, objectCenterX, objectCenterY) {
   const positions = [];
@@ -91,24 +105,33 @@ function processObjectSearch(targetGestureName, shouldSpeak = false) {
   const handX = currentHandPosition.x * canvasWidth;
   const handY = currentHandPosition.y * canvasHeight;
 
-  // Calculate positions
+  // Check if hand is touching the object
+  const isTouching = isHandTouchingObject(handX, handY, targetObject.bbox);
+
+  // Calculate positions (always calculate for return object)
   const imagePosition = getImageRelativePosition(handX, handY, objectCenterX, objectCenterY);
   const handPosition = getHandRelativePosition(handX, handY, objectCenterX, objectCenterY);
-
-  // Create message
   const confidence = (targetObject.confidence * 100).toFixed(0);
 
-  const message = `${targetGestureName} encontrado (${confidence}%) - Posição na imagem: ${imagePosition}. Posição relativa: ${handPosition}`;
+  let message;
+  if (isTouching) {
+    message = `Sua mão está no objeto ${targetGestureName}`;
+  } else {
+    // Create regular position message
+    message = `${targetGestureName} encontrado (${confidence}%) - Posição na imagem: ${imagePosition}. Posição relativa: ${handPosition}`;
+  }
+
+  if (shouldSpeak && message.length) generateAndPlaySpeech(message);
 
   // Display the message
   positionMessage.textContent = message;
-  if (shouldSpeak) generateAndPlaySpeech(message);
 
   return {
     object: targetGestureName,
     confidence: confidence,
     objectCenter: { x: objectCenterX, y: objectCenterY },
     handPosition: { x: handX, y: handY },
+    isTouching: isTouching,
     imagePosition: imagePosition,
     handRelativePosition: handPosition
   };
