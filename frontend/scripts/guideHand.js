@@ -1,3 +1,5 @@
+import { generateAndPlaySpeech } from './textToSpeech.js';
+
 let detectedObjects = []; // <<== Será preenchido pelo WebSocket que recebe a IA - estou simulando por enquanto
 let currentTarget = null; // <<== Será preenchido pelo WebSocket que recebe a IA - estou simulando por enquanto
 

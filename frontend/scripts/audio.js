@@ -1,12 +1,12 @@
 let lastVoiceOutput = null
 let isPlaying = false
 let lastPlayTime = 0
-const SPEECH_COOLDOWN = 5000 // 5 seconds in milliseconds
+const SPEECH_COOLDOWN = 3000 // 3 seconds in milliseconds
 
 export const generateAndPlaySpeech = async (text) => {
   if (isPlaying) return
   if (text == lastVoiceOutput) return
-  
+
   // Check cooldown time
   const currentTime = Date.now()
   if (currentTime - lastPlayTime < SPEECH_COOLDOWN) {
@@ -39,6 +39,8 @@ export const generateAndPlaySpeech = async (text) => {
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    console.log({ response })
 
     // Convert response to blob
     const audioBlob = await response.blob();

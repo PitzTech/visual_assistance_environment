@@ -2,6 +2,7 @@ import { generateAndPlaySpeech } from './audio.js';
 import { isCameraRunning } from './camera.js';
 import { captureHandGesture, recognizeRegisteredGesture, calculateAverageGesture } from './handGestureCalculator.js';
 import { updateHandPosition } from './objectSearch.js';
+import { isTrackingActive } from './objectSearch.js';
 
 /**
  * GENERAL VARIABLES
@@ -146,11 +147,11 @@ const handleSearchCapturedGesture = () => {
         disabled: false
       }
     };
-    
+
     // Find the button element and simulate the search
     const gesturesList = document.getElementById('gesturesList');
     const gestureItems = gesturesList.querySelectorAll('.gesture-item');
-    
+
     for (const item of gestureItems) {
       const gestureNameEl = item.querySelector('.gesture-name');
       if (gestureNameEl && gestureNameEl.textContent === lastRecognizedGesture.name) {
@@ -162,7 +163,7 @@ const handleSearchCapturedGesture = () => {
         }
       }
     }
-    
+
     showStatusMessage(`Gesto "${lastRecognizedGesture.name}" não encontrado na lista!`, "error");
   });
 }
@@ -347,7 +348,9 @@ function handleAIGestureOutputs(results) {
     handleUpdateGestureOutput("Nenhuma mão detectada");
   }
 
-  generateAndPlaySpeech(gestureOutput.textContent);
+  if (!isTrackingActive) {
+    generateAndPlaySpeech(gestureOutput.textContent);
+  }
 
   canvasCtx.restore();
 }

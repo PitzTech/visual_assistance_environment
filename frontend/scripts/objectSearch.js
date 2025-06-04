@@ -1,20 +1,15 @@
+import { generateAndPlaySpeech } from './audio.js';
+
 let currentHandPosition = null;
 let currentDetections = null;
 let activeTracking = new Map(); // Track which gestures are actively being searched
+export let isTrackingActive = false;
 
 // Get DOM elements
 const positionMessage = document.getElementById('positionMessage');
 const gesturesList = document.getElementById('gesturesList');
 
 // Text-to-speech function in Portuguese
-function speakText(text) {
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 0.8;
-    speechSynthesis.speak(utterance);
-  }
-}
 
 // Calculate position relative to image
 function getImageRelativePosition(handX, handY, objectCenterX, objectCenterY) {
@@ -63,14 +58,14 @@ function processObjectSearch(targetGestureName, shouldSpeak = false) {
   if (!currentHandPosition) {
     const message = 'Mão não encontrada';
     positionMessage.textContent = message;
-    if (shouldSpeak) speakText(message);
+    if (shouldSpeak) generateAndPlaySpeech(message);
     return null;
   }
 
   if (!currentDetections || currentDetections.length === 0) {
     const message = 'Nenhum objeto detectado';
     positionMessage.textContent = message;
-    if (shouldSpeak) speakText(message);
+    if (shouldSpeak) generateAndPlaySpeech(message);
     return null;
   }
 
@@ -82,7 +77,7 @@ function processObjectSearch(targetGestureName, shouldSpeak = false) {
   if (!targetObject) {
     const message = `${targetGestureName} não encontrado na imagem`;
     positionMessage.textContent = message;
-    if (shouldSpeak) speakText(message);
+    if (shouldSpeak) generateAndPlaySpeech(message);
     return null;
   }
 
@@ -107,7 +102,7 @@ function processObjectSearch(targetGestureName, shouldSpeak = false) {
 
   // Display the message
   positionMessage.textContent = message;
-  if (shouldSpeak) speakText(message);
+  if (shouldSpeak) generateAndPlaySpeech(message);
 
   return {
     object: targetGestureName,
@@ -144,7 +139,9 @@ function handleProcurarClick(event) {
       event.target.textContent = 'Procurar';
       event.target.classList.remove('tracking');
       positionMessage.textContent = '';
+      isTrackingActive = false
     } else {
+      isTrackingActive = true
       // Start tracking
       activeTracking.set(gestureName, {
         startTime: Date.now(),
