@@ -14,13 +14,19 @@ const gesturesList = document.getElementById('gesturesList');
 // Check if hand is touching/overlapping with object
 function isHandTouchingObject(handX, handY, objectBbox) {
   // Define hand area (approximate hand size)
-  const handRadius = 30; // pixels
+  const handRadius = 50; // increased radius for better detection
 
-  // Check if hand center is within object bounding box
+  // Debug logging
+  console.log('Hand position:', { handX, handY });
+  console.log('Object bbox:', objectBbox);
+
+  // Check if hand center is within object bounding box (with tolerance)
   const isInsideObject = handX >= objectBbox.x1 - handRadius &&
     handX <= objectBbox.x2 + handRadius &&
     handY >= objectBbox.y1 - handRadius &&
     handY <= objectBbox.y2 + handRadius;
+
+  console.log('Is touching:', isInsideObject);
 
   return isInsideObject;
 }
