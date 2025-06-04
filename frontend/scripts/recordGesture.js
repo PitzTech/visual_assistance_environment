@@ -9,6 +9,7 @@ import { updateHandPosition } from './objectSearch.js';
 
 let registeredGestures = JSON.parse(localStorage.getItem('handGestures')) || [];
 let currentGestureData = null;
+let lastRecognizedGesture = null;
 
 /**
  * UI MANAGER
@@ -122,9 +123,48 @@ const handleRegisterGesture = () => {
   objectNameInput.value = '';
   currentGestureData = null;
   registerBtn.disabled = true;
+  searchCapturedBtn.disabled = true;
 
   updateGesturesList();
   showStatusMessage(`Gesto "${objectName}" cadastrado com sucesso!`, "success");
+}
+
+const handleSearchCapturedGesture = () => {
+  if (!lastRecognizedGesture) {
+    showStatusMessage("Nenhum gesto reconhecido encontrado!", "error");
+    return;
+  }
+
+  // Import and use the object search functionality
+  import('./objectSearch.js').then(module => {
+    // Trigger search for the recognized gesture
+    const event = {
+      target: {
+        classList: { contains: () => true },
+        dataset: { gestureName: lastRecognizedGesture.name },
+        textContent: 'Buscar',
+        disabled: false
+      }
+    };
+    
+    // Find the button element and simulate the search
+    const gesturesList = document.getElementById('gesturesList');
+    const gestureItems = gesturesList.querySelectorAll('.gesture-item');
+    
+    for (const item of gestureItems) {
+      const gestureNameEl = item.querySelector('.gesture-name');
+      if (gestureNameEl && gestureNameEl.textContent === lastRecognizedGesture.name) {
+        const procurarBtn = item.querySelector('.procurarBtn');
+        if (procurarBtn) {
+          procurarBtn.click();
+          showStatusMessage(`Procurando por "${lastRecognizedGesture.name}"...`, "success");
+          return;
+        }
+      }
+    }
+    
+    showStatusMessage(`Gesto "${lastRecognizedGesture.name}" não encontrado na lista!`, "error");
+  });
 }
 
 // listeners
@@ -139,6 +179,10 @@ clearGesturesBtn.addEventListener('click', handleRemoveAllRegisteredGestures);
 // register new gesture
 const registerBtn = document.getElementById('registerGesture');
 registerBtn.addEventListener('click', handleRegisterGesture);
+
+// search captured gesture
+const searchCapturedBtn = document.getElementById('searchCapturedGesture');
+searchCapturedBtn.addEventListener('click', handleSearchCapturedGesture);
 
 updateGesturesList();
 
@@ -186,7 +230,9 @@ const handleStartGestureCapture = () => {
     captureBtn.classList.add('capturing');
     captureFrames = [];
     currentGestureData = null;
+    lastRecognizedGesture = null;
     registerBtn.disabled = true;
+    searchCapturedBtn.disabled = true;
     showStatusMessage("Mantenha o gesto estável por alguns segundos...", "warning");
   }
 }
@@ -205,9 +251,21 @@ function finishCapture() {
   // Calculate average gesture with improved algorithm
   currentGestureData = calculateAverageGesture(captureFrames);
 
-  handleUpdateGestureOutput("Gesto capturado! Agora clique em 'Cadastrar Sinal'")
+  // Check if this gesture matches any registered gesture
+  const recognizedGesture = recognizeRegisteredGesture(currentGestureData, registeredGestures);
+  if (recognizedGesture) {
+    lastRecognizedGesture = recognizedGesture;
+    searchCapturedBtn.disabled = false;
+    handleUpdateGestureOutput(`Gesto capturado! Reconhecido como: ${recognizedGesture.name}`)
+    showStatusMessage(`Gesto capturado e reconhecido como "${recognizedGesture.name}". Use 'Buscar' para procurar este objeto.`, "success");
+  } else {
+    lastRecognizedGesture = null;
+    searchCapturedBtn.disabled = true;
+    handleUpdateGestureOutput("Gesto capturado! Agora clique em 'Cadastrar Sinal'")
+    showStatusMessage("Gesto capturado com sucesso! Preencha o nome e clique em cadastrar.", "success");
+  }
+
   registerBtn.disabled = false;
-  showStatusMessage("Gesto capturado com sucesso! Preencha o nome e clique em cadastrar.", "success");
 
   // Clear frames
   captureFrames = [];
