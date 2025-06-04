@@ -107,6 +107,7 @@ function displayProcessedFrame(data) {
 
   // Update detection information
   updateDetectionInfo(data);
+
 }
 
 function updateDetectionInfo(data) {
@@ -115,19 +116,19 @@ function updateDetectionInfo(data) {
     <strong>Objetos Detectados:</strong> ${data.detection_count}
   `;
 
-  if (data.detections && data.detections.length > 0) {
-    infoHTML += '<br><br><strong>Detecções:</strong><br>';
+  // if (data.detections && data.detections.length > 0) {
+  //   infoHTML += '<br><br><strong>Detecções:</strong><br>';
 
-    data.detections.forEach((detection, index) => {
-      const { name, confidence, bbox } = detection;
-      infoHTML += `
-        <div style="margin: 5px 0; padding: 5px; background-color: rgba(0,0,0,0.1); border-radius: 3px;">
-          <strong>${name}</strong> (${(confidence * 100).toFixed(1)}%)<br>
-          <small>Posição: x1=${bbox.x1}, y1=${bbox.y1}, x2=${bbox.x2}, y2=${bbox.y2}</small>
-        </div>
-      `;
-    });
-  }
+  //   data.detections.forEach((detection, index) => {
+  //     const { name, confidence, bbox } = detection;
+  //     infoHTML += `
+  //       <div style="margin: 5px 0; padding: 5px; background-color: rgba(0,0,0,0.1); border-radius: 3px;">
+  //         <strong>${name}</strong> (${(confidence * 100).toFixed(1)}%)<br>
+  //         <small>Posição: x1=${bbox.x1}, y1=${bbox.y1}, x2=${bbox.x2}, y2=${bbox.y2}</small>
+  //       </div>
+  //     `;
+  //   });
+  // }
 
   detectionInfo.innerHTML = infoHTML;
 }

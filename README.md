@@ -91,7 +91,7 @@ python main.py
 ### 2. Abrir o Frontend
 ```bash
 cd frontend
-# Abrir gestos.html no navegador Chrome/Chromium
+# Abrir main.html no navegador Chrome/Chromium
 ```
 
 ### 3. Funcionalidades

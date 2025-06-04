@@ -36,10 +36,22 @@
       <label for="objectName">Nome do Objeto:</label>
       <input type="text" id="objectName" placeholder="Ex: caderno, caneta, livro...">
     </div>
-    <button class="btn" id="captureGesture">Capturar Sinal</button>
-    <button class="btn btn-secondary" id="registerGesture" disabled>Cadastrar Sinal</button>
+    <div id="gestureControlsContainer">
+      <button class="btn" id="captureGesture">Capturar Sinal</button>
+      <button class="btn btn-secondary" id="registerGesture" disabled>Cadastrar Sinal</button>
+      <div id="sliderResetContainer">
+        É reset?
+        <label class="switch">
+          <input type="checkbox">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
     <div id="statusMessage"></div>
+    <div id="positionMessage"></div>
   </div>
+
+
 
   <div class="registered-gestures">
     <h3>Gestos Cadastrados</h3>
