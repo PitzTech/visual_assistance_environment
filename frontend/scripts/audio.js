@@ -1,12 +1,21 @@
 let lastVoiceOutput = null
 let isPlaying = false
+let lastPlayTime = 0
+const SPEECH_COOLDOWN = 5000 // 5 seconds in milliseconds
 
 export const generateAndPlaySpeech = async (text) => {
   if (isPlaying) return
   if (text == lastVoiceOutput) return
+  
+  // Check cooldown time
+  const currentTime = Date.now()
+  if (currentTime - lastPlayTime < SPEECH_COOLDOWN) {
+    return // Ignore request during cooldown
+  }
 
   lastVoiceOutput = text
-  isPlaying = WebTransportDatagramDuplexStream
+  lastPlayTime = currentTime
+  isPlaying = true
 
   try {
     // Make the API request

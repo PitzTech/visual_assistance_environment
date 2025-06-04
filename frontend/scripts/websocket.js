@@ -1,4 +1,5 @@
 import { isCameraRunning } from './camera.js';
+import { updateDetections } from './objectSearch.js';
 
 let ws = null;
 export let isStreaming = false;
@@ -107,6 +108,11 @@ function displayProcessedFrame(data) {
 
   // Update detection information
   updateDetectionInfo(data);
+
+  // Update detections for object search
+  if (data.detections) {
+    updateDetections(data.detections);
+  }
 
 }
 

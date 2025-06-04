@@ -1,6 +1,7 @@
 import { generateAndPlaySpeech } from './audio.js';
 import { isCameraRunning } from './camera.js';
 import { captureHandGesture, recognizeRegisteredGesture, calculateAverageGesture } from './handGestureCalculator.js';
+import { updateHandPosition } from './objectSearch.js';
 
 /**
  * GENERAL VARIABLES
@@ -43,6 +44,7 @@ const updateGesturesList = () => {
                     <div class="gesture-info">
                         <div class="gesture-name">${gesture.name}</div>
                     </div>
+                    <button class="btn procurarBtn" data-gesture-name="${gesture.name}">Procurar</button>
                     <button class="btn btn-danger removeGestureBtn" data-index="${index}">Remover</button>
                 </div>
             `).join('');
@@ -252,6 +254,9 @@ function handleAIGestureOutputs(results) {
 
   if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
     const landmarks = results.multiHandLandmarks[0];
+
+    // Update hand position for object search
+    updateHandPosition(landmarks);
 
     // Desenhar as conexões e pontos de referência da mão
     drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
