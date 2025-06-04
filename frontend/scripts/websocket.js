@@ -8,6 +8,11 @@ export let isStreaming = false;
 const canvas = document.createElement('canvas');
 const ctx = canvas.getContext('2d');
 
+// Frame rate limiting for WebSocket sending
+const MAX_FPS = 30;
+const FRAME_INTERVAL = 1000 / MAX_FPS; // ~33ms between frames
+let lastFrameTime = 0;
+
 // Get detection canvas and info elements
 const detectionCanvas = document.getElementById('detectionCanvas');
 const detectionCtx = detectionCanvas.getContext('2d');
@@ -59,6 +64,13 @@ export const captureAndSendFrame = (videoElement) => {
   if (!isStreaming || !videoElement.videoWidth || !videoElement.videoHeight) {
     return;
   }
+
+  // Frame rate limiting - only send if enough time has passed
+  const currentTime = Date.now();
+  if (currentTime - lastFrameTime < FRAME_INTERVAL) {
+    return; // Skip this frame to maintain max 30 FPS
+  }
+  lastFrameTime = currentTime;
 
   // Set canvas dimensions to match video
   canvas.width = videoElement.videoWidth;
